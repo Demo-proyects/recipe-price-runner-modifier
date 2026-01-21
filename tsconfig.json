@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    /* Paramètres de base */
+    "target": "ESNext",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Rigueur du code */
+    "strict": true,
+    "skipLibCheck": true,
+
+    /* Désactivation du mode strict des modules (pour éviter l'erreur TS1295) */
+    "verbatimModuleSyntax": false,
+    "isolatedModules": false,
+
+    /* Autres options utiles */
+    "sourceMap": true,
+    "outDir": "./dist"
+  },
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules"]
+}
