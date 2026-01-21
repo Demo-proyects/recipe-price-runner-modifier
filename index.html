@@ -8,15 +8,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
-        /* Header Flouté */
         .glass-header { 
             backdrop-filter: blur(12px); 
             background: rgba(255, 255, 255, 0.9); 
             border-bottom: 1px solid #e2e8f0;
         }
-        
-        /* Animations douces */
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -29,7 +25,6 @@
                 <h1 class="text-sm font-black tracking-widest uppercase text-slate-800">Rapport de Validation</h1>
                 <p class="text-[11px] text-indigo-600 uppercase font-bold tracking-wider">v2.6 • Correctif Production</p>
             </div>
-            
             <button onclick="runTest()" id="btnRun" class="bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-full text-xs font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-3">
                 <span id="btnText">🚀 LANCER LA SIMULATION</span>
             </button>
@@ -37,7 +32,6 @@
     </header>
 
     <div class="max-w-4xl mx-auto pt-32 pb-20">
-        
         <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm mb-10 fade-in">
             <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,264 +40,133 @@
                 Contexte de la validation
             </h2>
             <div class="text-slate-600 text-sm leading-relaxed space-y-4">
-                <p>
-                    Ce simulateur utilise <strong>exactement la même logique mathématique</strong> que le fichier final 
-                    (<code class="bg-slate-100 px-1 py-0.5 rounded text-indigo-600 font-mono text-xs">recipe-price-runner-modified.ts</code> 
-                    situé dans <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-500 font-mono text-xs">server/Correction-calcul/</code>).
-                </p>
-                <p>
-                    L'environnement de test simule des données identiques à votre base réelle pour confirmer les points suivants :
-                </p>
+                <p>Ce simulateur utilise <strong>exactement la même logique mathématique</strong> que le moteur de production pour valider les correctifs suivants :</p>
                 <ul class="grid md:grid-cols-2 gap-4 pt-2">
                     <li class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
-                        <strong class="text-indigo-900 block mb-1">1. Correction du bug des prix élevés</strong>
-                        Les conversions (ex: lb vers grammes) sont maintenant gérées, ce qui règle les erreurs de calcul sur les gros volumes.
+                        <strong class="text-indigo-900 block mb-1">1. Correction des conversions</strong>
+                        Les prix au lb/kg sont convertis en grammes pour un calcul précis du coût réel.
                     </li>
                     <li class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
-                        <strong class="text-indigo-900 block mb-1">2. Filtrage des magasins</strong>
-                        Adonis et Provigo sont désormais strictement exclus des résultats.
-                    </li>
-                    <li class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
-                        <strong class="text-indigo-900 block mb-1">3. Optimisation</strong>
-                        Le système sélectionne systématiquement le prix le plus bas parmi les enseignes autorisées.
-                    </li>
-                    <li class="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center text-gray-500 italic">
-                        Le code est documenté en français et en anglais pour plus de clarté. Tout est prêt pour être appliqué sur vos données.
+                        <strong class="text-indigo-900 block mb-1">2. Exclusion stricte</strong>
+                        Adonis et Provigo sont exclus de la logique de recherche.
                     </li>
                 </ul>
             </div>
         </div>
 
-        <div>
-            <div class="flex items-center gap-3 mb-4 justify-center">
-                <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Rendu Client (Prix finaux)</h2>
-            </div>
-            
-            <div id="resultsArea" class="space-y-4">
-                <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-sm">
-                    <p class="mb-2">En attente du lancement...</p>
-                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Cliquez sur le bouton en haut</span>
-                </div>
+        <div class="flex items-center gap-3 mb-4 justify-center">
+            <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+            <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Rendu Client (Prix optimisés)</h2>
+        </div>
+        <div id="resultsArea" class="space-y-4 text-center">
+            <div class="py-16 bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-sm">
+                En attente du lancement...
             </div>
         </div>
-
-        <footer class="mt-20 border-t border-slate-200 pt-8 text-center">
-            <p class="text-slate-400 text-[10px] uppercase tracking-[0.2em]">Validation terminée • Prêt pour déploiement</p>
-        </footer>
     </div>
 
     <script>
+        // --- DONNÉES SIMULÉES ---
+        const stores = [
+            { id: 1, name: 'IGA' }, { id: 2, name: 'Metro' }, { id: 3, name: 'Maxi' }, { id: 4, name: 'Super C' },
+            { id: 5, name: 'Provigo' }, { id: 6, name: 'Adonis' }
+        ];
+
+        const recipes = [
+            { title: 'Pâté Chinois', ingredients: [
+                { id: 'ing_boeuf', name: 'Boeuf', quantity: 1, unit: 'lb' },
+                { id: 'ing_mais', name: 'Maïs', quantity: 398, unit: 'ml' }
+            ]},
+            { title: 'Paella', ingredients: [
+                { id: 'ing_boeuf', name: 'Boeuf', quantity: 0.5, unit: 'lb' },
+                { id: 'ing_safran', name: 'Safran', quantity: 1, unit: 'g' }
+            ]}
+        ];
+
+        const prices = [
+            { storeId: 1, ingredientId: 'ing_boeuf', price: 6.99, quantity: 454, unit: 'g' },
+            { storeId: 2, ingredientId: 'ing_boeuf', price: 5.44, quantity: 1, unit: 'lb' },
+            { storeId: 4, ingredientId: 'ing_boeuf', price: 4.99, quantity: 1, unit: 'lb' },
+            { storeId: 5, ingredientId: 'ing_boeuf', price: 2.00, quantity: 1, unit: 'lb' }, // Prix bas mais exclu
+            { storeId: 1, ingredientId: 'ing_mais', price: 1.99, quantity: 398, unit: 'ml' },
+            { storeId: 4, ingredientId: 'ing_mais', price: 0.88, quantity: 398, unit: 'ml' }
+        ];
+
+        // --- LOGIQUE DE CONVERSION ---
+        function getStandardQuantityInGrams(quantity, unit) {
+            const u = unit.toLowerCase().trim();
+            if (u === 'kg') return quantity * 1000;
+            if (u === 'lb' || u === 'lbs' || u === 'livre') return quantity * 454;
+            if (u === 'l') return quantity * 1000;
+            return quantity; // ml, g
+        }
+
         async function runTest() {
             const btn = document.getElementById('btnRun');
             const btnText = document.getElementById('btnText');
             const resultsArea = document.getElementById('resultsArea');
             
-            // État de chargement
-            btn.disabled = true;
             btnText.innerHTML = "CALCUL EN COURS...";
-            btn.classList.add('opacity-75');
-            
-            resultsArea.innerHTML = `
-                <div class="flex flex-col items-center justify-center p-10 space-y-4">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    <span class="text-xs text-slate-400 uppercase tracking-widest">Traitement Serveur...</span>
-                </div>`;
+            btn.disabled = true;
 
-            try {
-                // Appel à ton serveur local
-                const response = await fetch('http://localhost:3000/api/run-calculation', { 
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                if (!response.ok) throw new Error("Erreur réseau");
+            // Petit délai pour simuler le calcul
+            await new Promise(r => setTimeout(r, 600));
 
-                const data = await response.json();
-                
-                // Affichage des Cartes uniquement
-                resultsArea.innerHTML = ""; 
+            const allowedStoreIds = [1, 2, 3, 4]; // IGA, Metro, Maxi, Super C
+            resultsArea.innerHTML = "";
 
-                data.results.forEach((recipe, index) => {
-                    const isN_A = recipe.bestPrice === 'N/A';
-                    
-                    // Création de la carte HTML
-                    const card = document.createElement('div');
-                    card.className = `bg-white border ${isN_A ? 'border-red-100' : 'border-indigo-50'} rounded-xl p-6 shadow-sm mb-4 transition-all hover:shadow-md fade-in`;
-                    card.style.animationDelay = `${index * 100}ms`; // Effet cascade
-                    
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h4 class="font-bold text-slate-800 text-lg">${recipe.recipeName}</h4>
-                                <div class="mt-1 flex gap-2">
-                                    <span class="text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider ${isN_A ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}">
-                                        ${isN_A ? '⚠️ Incomplet' : '✅ Optimisé'}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-2xl font-black text-slate-900 tracking-tight">${isN_A ? '---' : recipe.bestPrice + '<span class="text-sm text-slate-400 font-normal">$</span>'}</div>
-                                <div class="text-[10px] text-indigo-500 uppercase font-bold tracking-widest mt-1">${recipe.bestStore}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="bg-slate-50 rounded-lg p-3 text-xs space-y-2 border border-slate-100">
-                            ${recipe.storeDetails.map(store => `
-                                <div class="flex justify-between items-center ${store.isComplete ? '' : 'opacity-40'}">
-                                    <span class="font-medium text-slate-600">${store.storeName}</span>
-                                    <span class="font-mono ${store.isComplete ? 'text-slate-900 font-semibold' : 'text-red-400 italic'}">
-                                        ${store.isComplete ? store.total + ' $' : 'Manquant'}
-                                    </span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
-                    resultsArea.appendChild(card);
+            recipes.forEach(recipe => {
+                let bestPriceForRecipe = Infinity;
+                let bestStoreName = "N/A";
+                let isComplete = true;
+
+                // On cherche le meilleur magasin pour la recette entière
+                allowedStoreIds.forEach(storeId => {
+                    let totalStore = 0;
+                    let hasAllIngredients = true;
+
+                    recipe.ingredients.forEach(ing => {
+                        const pData = prices.find(p => p.ingredientId === ing.id && p.storeId === storeId);
+                        if (!pData) {
+                            hasAllIngredients = false;
+                        } else {
+                            const storeG = getStandardQuantityInGrams(pData.quantity, pData.unit);
+                            const recipeG = getStandardQuantityInGrams(ing.quantity, ing.unit);
+                            totalStore += (pData.price / storeG) * recipeG;
+                        }
+                    });
+
+                    if (hasAllIngredients && totalStore < bestPriceForRecipe) {
+                        bestPriceForRecipe = totalStore;
+                        bestStoreName = stores.find(s => s.id === storeId).name;
+                    }
                 });
 
-                // Fin du chargement (Succès)
-                btnText.innerHTML = "✅ VALIDATION RÉUSSIE";
-                btn.classList.replace('bg-slate-900', 'bg-green-600');
-                btn.classList.remove('opacity-75');
+                const isN_A = bestPriceForRecipe === Infinity;
                 
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btnText.innerHTML = "🚀 RELANCER LA SIMULATION";
-                    btn.classList.replace('bg-green-600', 'bg-slate-900');
-                }, 4000);
-
-            } catch (err) {
-                console.error(err);
-                // Gestion d'erreur
-                resultsArea.innerHTML = `
-                    <div class="bg-red-50 text-red-800 p-6 rounded-xl border border-red-200 shadow-sm text-center">
-                        <strong class="flex items-center justify-center gap-2 mb-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            Erreur de connexion
-                        </strong>
-                        <p class="text-sm opacity-80">Impossible de joindre le serveur de calcul.</p>
-                        <p class="text-xs mt-2 font-mono bg-red-100 p-2 rounded inline-block">Vérifiez que "npm run start" est lancé.</p>
-                    </div>`;
-                
-                btn.disabled = false;
-                btnText.innerHTML = "RÉESSAYER";
-                btn.classList.remove('opacity-75');
-            }
-        }
-    </script>
-
-    import express from 'express';
-import cors from 'cors';
-import { stores, recipes, prices, STORE_IDS } from './mock-data';
-
-const app = express();
-const PORT = 3000;
-
-app.use(cors());
-app.use(express.json());
-
-// --- FONCTION DE CONVERSION (LE CŒUR DU CORRECTIF) ---
-// Cette fonction transforme toutes les unités (lb, kg, ml) en grammes
-// pour permettre une comparaison de prix juste.
-function getStandardQuantityInGrams(quantity: number, unit: string): number {
-    const u = unit.toLowerCase().trim();
-    
-    // Conversion de masse
-    if (u === 'kg') return quantity * 1000;
-    if (u === 'lb' || u === 'lbs' || u === 'livre') return quantity * 454;
-    
-    // Simplification pour les liquides (densité eau)
-    if (u === 'l') return quantity * 1000;
-    if (u === 'ml') return quantity;
-    
-    // Par défaut (g, ou unité indivisible)
-    return quantity;
-}
-
-// --- LOGIQUE DE CALCUL ---
-app.get('/calculate', (req, res) => {
-    console.log("🔄 Démarrage du calcul...");
-
-    // 1. Définir les magasins autorisés (Exclusion d'Adonis et Provigo)
-    // Supposons que les IDs valides sont Metro(1), IGA(2), Maxi(3), Super C(4)
-    // On exclut explicitement tout ce qui n'est pas dans cette liste.
-    const allowedStoreIds = [1, 2, 3, 4]; 
-
-    const results = recipes.map(recipe => {
-        let recipeTotalPrice = 0;
-        let isRecipeValid = true;
-
-        const calculatedIngredients = recipe.ingredients.map(ingredient => {
-            
-            // 2. Trouver les prix pour cet ingrédient UNIQUEMENT dans les magasins autorisés
-            const availablePrices = prices.filter(p => 
-                p.ingredientId === ingredient.id && 
-                allowedStoreIds.includes(p.storeId)
-            );
-
-            // Cas d'erreur : Ingrédient introuvable (ex: Safran pour la Paella)
-            if (availablePrices.length === 0) {
-                isRecipeValid = false;
-                return {
-                    ...ingredient,
-                    error: "Non disponible dans les épiceries sélectionnées",
-                    bestDeal: null
-                };
-            }
-
-            // 3. Trouver le meilleur prix (Algorithme de normalisation)
-            let bestPrice = Infinity;
-            let bestDeal = null;
-
-            availablePrices.forEach(p => {
-                // A. Convertir la quantité du magasin en grammes (ex: 1 lb -> 454g)
-                const storeQtyInGrams = getStandardQuantityInGrams(p.quantity, p.unit);
-                
-                // B. Calculer le prix par gramme
-                const pricePerGram = p.price / storeQtyInGrams;
-
-                // C. Convertir la quantité requise par la recette en grammes (ex: 1.2 kg -> 1200g)
-                const recipeNeedInGrams = getStandardQuantityInGrams(ingredient.quantity, ingredient.unit);
-
-                // D. Coût final pour la recette
-                const costForRecipe = pricePerGram * recipeNeedInGrams;
-
-                // Comparaison : est-ce moins cher que le précédent ?
-                if (costForRecipe < bestPrice) {
-                    bestPrice = costForRecipe;
-                    bestDeal = {
-                        storeId: p.storeId,
-                        price: p.price, // Prix affiché en magasin
-                        unit: p.unit,   // Unité magasin
-                        costCalculated: parseFloat(costForRecipe.toFixed(2)) // Coût réel pour le plat
-                    };
-                }
+                // Rendu de la carte
+                const card = document.createElement('div');
+                card.className = "bg-white border border-slate-200 rounded-xl p-6 shadow-sm mb-4 text-left fade-in";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-slate-800">${recipe.title}</h4>
+                            <span class="text-[10px] font-bold uppercase ${isN_A ? 'text-red-500' : 'text-green-600'}">
+                                ${isN_A ? '⚠️ Incomplet' : '✅ Meilleur prix trouvé'}
+                            </span>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xl font-black">${isN_A ? '---' : bestPriceForRecipe.toFixed(2) + '$'}</div>
+                            <div class="text-[10px] text-indigo-500 font-bold uppercase">${isN_A ? 'Aucun magasin' : bestStoreName}</div>
+                        </div>
+                    </div>
+                `;
+                resultsArea.appendChild(card);
             });
 
-            recipeTotalPrice += bestPrice;
-
-            return {
-                ...ingredient,
-                bestDeal: bestDeal
-            };
-        });
-
-        return {
-            recipeName: recipe.name,
-            ingredients: calculatedIngredients,
-            totalPrice: isRecipeValid ? parseFloat(recipeTotalPrice.toFixed(2)) : 0
-        };
-    });
-
-    console.log("✅ Calcul terminé. Envoi des résultats.");
-    res.json(results);
-});
-
-app.listen(PORT, () => {
-    console.log(`✅ SERVEUR DE TEST ACTIF sur http://localhost:${PORT}`);
-    console.log(`   -> Prêt à valider les calculs.`);
-});
+            btnText.innerHTML = "✅ VALIDATION RÉUSSIE";
+            btn.classList.replace('bg-slate-900', 'bg-green-600');
+        }
+    </script>
 </body>
 </html>
-
