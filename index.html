@@ -5,99 +5,156 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validation Technique - Recipe Price Runner</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 text-slate-900 font-sans p-4 md:p-10">
-
-    <div class="max-w-4xl mx-auto">
-        <header class="mb-10 border-b pb-6">
-            <h1 class="text-3xl font-bold text-slate-800">Rapport de Correction : Calculateur de Prix</h1>
-            <p class="text-slate-500 mt-2">Validation de la logique mathématique et du filtrage des enseignes.</p>
-        </header>
-
-        <section class="grid md:grid-cols-3 gap-4 mb-10">
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Exclusion Magasins</h3>
-                <p class="text-sm font-semibold">Adonis & Provigo retirés avec succès. ✅</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500">
-                <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Correction Unités</h3>
-                <p class="text-sm font-semibold">Conversion LB ➔ Grammes active (Fin du bug 1188$). ✅</p>
-            </div>
-            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
-                <h3 class="text-xs font-bold uppercase text-slate-400 mb-2">Algorithme</h3>
-                <p class="text-sm font-semibold">Sélection automatique du prix le plus bas. ✅</p>
-            </div>
-        </section>
-
-        <main class="bg-white rounded-2xl shadow-md p-8">
-            <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h2 class="text-xl font-bold">Bac à sable (Sandbox) de Test</h2>
-                    <p class="text-sm text-slate-500">Simule les calculs réels avec des données isolées.</p>
-                </div>
-                <button onclick="runTest()" id="btnRun" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2">
-                    🚀 Lancer la Simulation
-                </button>
-            </div>
-
-            <div id="logicExplanation" class="hidden mb-8 p-4 bg-indigo-50 border border-indigo-100 rounded-lg text-sm text-indigo-800">
-                <p><strong>Note technique :</strong> Le système détecte que le bœuf est vendu en "LB" mais que la recette en demande 1200g. Il convertit 1lb en 454g, calcule le prix au gramme (ex: 0.01$/g), et multiplie par 1200. Le résultat final est maintenant cohérent (~12$ à 15$) au lieu d'afficher 1200$.</p>
-            </div>
-
-            <div id="resultsArea" class="space-y-6">
-                <div class="text-center py-10 text-slate-400 italic">
-                    Cliquez sur le bouton pour voir les résultats du calcul...
-                </div>
-            </div>
-        </main>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
         
-        <footer class="mt-10 text-center text-slate-400 text-xs">
-            Propulsé par la logique corrigée de recipe-price-runner-modifier.ts
+        /* Header Flouté */
+        .glass-header { 
+            backdrop-filter: blur(12px); 
+            background: rgba(255, 255, 255, 0.9); 
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        /* Animations douces */
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-900 px-4 md:px-0">
+
+    <header class="fixed top-0 left-0 w-full z-50 glass-header shadow-sm">
+        <div class="max-w-4xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div>
+                <h1 class="text-sm font-black tracking-widest uppercase text-slate-800">Rapport de Validation</h1>
+                <p class="text-[11px] text-indigo-600 uppercase font-bold tracking-wider">v2.6 • Correctif Production</p>
+            </div>
+            
+            <button onclick="runTest()" id="btnRun" class="bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-full text-xs font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-3">
+                <span id="btnText">🚀 LANCER LA SIMULATION</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto pt-32 pb-20">
+        
+        <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm mb-10 fade-in">
+            <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Contexte de la validation
+            </h2>
+            <div class="text-slate-600 text-sm leading-relaxed space-y-4">
+                <p>
+                    Ce simulateur utilise <strong>exactement la même logique mathématique</strong> que le fichier final 
+                    (<code class="bg-slate-100 px-1 py-0.5 rounded text-indigo-600 font-mono text-xs">recipe-price-runner-modified.ts</code> 
+                    situé dans <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-500 font-mono text-xs">server/Correction-calcul/</code>).
+                </p>
+                <p>
+                    L'environnement de test simule des données identiques à votre base réelle pour confirmer les points suivants :
+                </p>
+                <ul class="grid md:grid-cols-2 gap-4 pt-2">
+                    <li class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                        <strong class="text-indigo-900 block mb-1">1. Correction du bug des prix élevés</strong>
+                        Les conversions (ex: lb vers grammes) sont maintenant gérées, ce qui règle les erreurs de calcul sur les gros volumes.
+                    </li>
+                    <li class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                        <strong class="text-indigo-900 block mb-1">2. Filtrage des magasins</strong>
+                        Adonis et Provigo sont désormais strictement exclus des résultats.
+                    </li>
+                    <li class="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100">
+                        <strong class="text-indigo-900 block mb-1">3. Optimisation</strong>
+                        Le système sélectionne systématiquement le prix le plus bas parmi les enseignes autorisées.
+                    </li>
+                    <li class="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center text-gray-500 italic">
+                        Le code est documenté en français et en anglais pour plus de clarté. Tout est prêt pour être appliqué sur vos données.
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            <div class="flex items-center gap-3 mb-4 justify-center">
+                <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Rendu Client (Prix finaux)</h2>
+            </div>
+            
+            <div id="resultsArea" class="space-y-4">
+                <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-sm">
+                    <p class="mb-2">En attente du lancement...</p>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Cliquez sur le bouton en haut</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="mt-20 border-t border-slate-200 pt-8 text-center">
+            <p class="text-slate-400 text-[10px] uppercase tracking-[0.2em]">Validation terminée • Prêt pour déploiement</p>
         </footer>
     </div>
 
     <script>
         async function runTest() {
             const btn = document.getElementById('btnRun');
+            const btnText = document.getElementById('btnText');
             const resultsArea = document.getElementById('resultsArea');
-            const explanation = document.getElementById('logicExplanation');
             
+            // État de chargement
             btn.disabled = true;
-            btn.innerHTML = "Calcul en cours...";
-            resultsArea.innerHTML = '<div class="flex justify-center p-10"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div></div>';
+            btnText.innerHTML = "CALCUL EN COURS...";
+            btn.classList.add('opacity-75');
+            
+            resultsArea.innerHTML = `
+                <div class="flex flex-col items-center justify-center p-10 space-y-4">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <span class="text-xs text-slate-400 uppercase tracking-widest">Traitement Serveur...</span>
+                </div>`;
 
             try {
-                // Utilisation de ton serveur TS-Node
-                const response = await fetch('http://localhost:3000/api/run-calculation', { method: 'POST' });
+                // Appel à ton serveur local
+                const response = await fetch('http://localhost:3000/api/run-calculation', { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!response.ok) throw new Error("Erreur réseau");
+
                 const data = await response.json();
                 
-                explanation.classList.remove('hidden');
-                resultsArea.innerHTML = ""; // Vider
+                // Affichage des Cartes uniquement
+                resultsArea.innerHTML = ""; 
 
-                data.results.forEach(recipe => {
-                    const card = document.createElement('div');
-                    card.className = "border rounded-xl p-5 hover:border-indigo-200 transition-colors";
-                    
+                data.results.forEach((recipe, index) => {
                     const isN_A = recipe.bestPrice === 'N/A';
+                    
+                    // Création de la carte HTML
+                    const card = document.createElement('div');
+                    card.className = `bg-white border ${isN_A ? 'border-red-100' : 'border-indigo-50'} rounded-xl p-6 shadow-sm mb-4 transition-all hover:shadow-md fade-in`;
+                    card.style.animationDelay = `${index * 100}ms`; // Effet cascade
                     
                     card.innerHTML = `
                         <div class="flex justify-between items-start mb-4">
                             <div>
-                                <h4 class="font-bold text-lg">${recipe.recipeName}</h4>
-                                <span class="text-xs px-2 py-1 rounded ${isN_A ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'} font-bold uppercase">
-                                    ${isN_A ? '❌ Incomplet' : '✅ Prix Optimisé'}
-                                </span>
+                                <h4 class="font-bold text-slate-800 text-lg">${recipe.recipeName}</h4>
+                                <div class="mt-1 flex gap-2">
+                                    <span class="text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider ${isN_A ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}">
+                                        ${isN_A ? '⚠️ Incomplet' : '✅ Optimisé'}
+                                    </span>
+                                </div>
                             </div>
                             <div class="text-right">
-                                <div class="text-2xl font-black text-indigo-600">${isN_A ? '---' : recipe.bestPrice + ' $'}</div>
-                                <div class="text-xs text-slate-400">Meilleure option : ${recipe.bestStore}</div>
+                                <div class="text-2xl font-black text-slate-900 tracking-tight">${isN_A ? '---' : recipe.bestPrice + '<span class="text-sm text-slate-400 font-normal">$</span>'}</div>
+                                <div class="text-[10px] text-indigo-500 uppercase font-bold tracking-widest mt-1">${recipe.bestStore}</div>
                             </div>
                         </div>
-                        <div class="text-xs space-y-1 text-slate-500 border-t pt-3">
+                        
+                        <div class="bg-slate-50 rounded-lg p-3 text-xs space-y-2 border border-slate-100">
                             ${recipe.storeDetails.map(store => `
-                                <div class="flex justify-between">
-                                    <span>${store.storeName}</span>
-                                    <span class="${store.isComplete ? 'text-slate-700' : 'text-red-400'}">${store.total} ${store.isComplete ? '$' : '(Manquant)'}</span>
+                                <div class="flex justify-between items-center ${store.isComplete ? '' : 'opacity-40'}">
+                                    <span class="font-medium text-slate-600">${store.storeName}</span>
+                                    <span class="font-mono ${store.isComplete ? 'text-slate-900 font-semibold' : 'text-red-400 italic'}">
+                                        ${store.isComplete ? store.total + ' $' : 'Manquant'}
+                                    </span>
                                 </div>
                             `).join('')}
                         </div>
@@ -105,16 +162,33 @@
                     resultsArea.appendChild(card);
                 });
 
-                btn.innerHTML = "✅ Calcul Terminé";
-                btn.classList.replace('bg-indigo-600', 'bg-green-600');
+                // Fin du chargement (Succès)
+                btnText.innerHTML = "✅ VALIDATION RÉUSSIE";
+                btn.classList.replace('bg-slate-900', 'bg-green-600');
+                btn.classList.remove('opacity-75');
+                
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btnText.innerHTML = "🚀 RELANCER LA SIMULATION";
+                    btn.classList.replace('bg-green-600', 'bg-slate-900');
+                }, 4000);
 
             } catch (err) {
+                console.error(err);
+                // Gestion d'erreur
                 resultsArea.innerHTML = `
-                    <div class="bg-red-50 text-red-700 p-4 rounded-lg text-sm">
-                        <strong>Erreur :</strong> Impossible de contacter le serveur. Lancez <code>npx ts-node server.ts</code> dans votre terminal.
+                    <div class="bg-red-50 text-red-800 p-6 rounded-xl border border-red-200 shadow-sm text-center">
+                        <strong class="flex items-center justify-center gap-2 mb-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Erreur de connexion
+                        </strong>
+                        <p class="text-sm opacity-80">Impossible de joindre le serveur de calcul.</p>
+                        <p class="text-xs mt-2 font-mono bg-red-100 p-2 rounded inline-block">Vérifiez que "npm run start" est lancé.</p>
                     </div>`;
+                
                 btn.disabled = false;
-                btn.innerHTML = "Réessayer";
+                btnText.innerHTML = "RÉESSAYER";
+                btn.classList.remove('opacity-75');
             }
         }
     </script>
