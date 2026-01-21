@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Validation Technique - Recipe Price Runner</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;800&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .terminal-font { font-family: 'Fira Code', monospace; }
-        .log-line { border-bottom: 1px solid #1e293b; padding: 4px 0; line-height: 1.5; }
         
         /* Header Flouté */
         .glass-header { 
@@ -26,10 +24,10 @@
 <body class="bg-[#f8fafc] text-slate-900 px-4 md:px-0">
 
     <header class="fixed top-0 left-0 w-full z-50 glass-header shadow-sm">
-        <div class="max-w-6xl mx-auto px-6 h-20 flex justify-between items-center">
+        <div class="max-w-4xl mx-auto px-6 h-20 flex justify-between items-center">
             <div>
                 <h1 class="text-sm font-black tracking-widest uppercase text-slate-800">Rapport de Validation</h1>
-                <p class="text-[11px] text-indigo-600 uppercase font-bold tracking-wider">v2.5 • Correctif Production</p>
+                <p class="text-[11px] text-indigo-600 uppercase font-bold tracking-wider">v2.6 • Correctif Production</p>
             </div>
             
             <button onclick="runTest()" id="btnRun" class="bg-slate-900 hover:bg-black text-white px-6 py-3 rounded-full text-xs font-bold transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-3">
@@ -38,7 +36,7 @@
         </div>
     </header>
 
-    <div class="max-w-6xl mx-auto pt-32 pb-20">
+    <div class="max-w-4xl mx-auto pt-32 pb-20">
         
         <div class="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm mb-10 fade-in">
             <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
@@ -76,40 +74,16 @@
             </div>
         </div>
 
-        <div class="grid lg:grid-cols-12 gap-8">
-            
-            <div class="lg:col-span-5 space-y-6">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
-                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Rendu Client (Prix finaux)</h2>
-                </div>
-                
-                <div id="resultsArea" class="space-y-4">
-                    <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-sm">
-                        <p class="mb-2">En attente du lancement...</p>
-                        <span class="text-xs bg-slate-100 px-2 py-1 rounded">Cliquez sur le bouton en haut</span>
-                    </div>
-                </div>
+        <div>
+            <div class="flex items-center gap-3 mb-4 justify-center">
+                <div class="w-2 h-2 rounded-full bg-indigo-500"></div>
+                <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Rendu Client (Prix finaux)</h2>
             </div>
-
-            <div class="lg:col-span-7">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Log Serveur (Preuve Mathématique)</h2>
-                </div>
-
-                <div class="bg-[#0f172a] rounded-2xl shadow-xl overflow-hidden border border-slate-800 ring-4 ring-slate-100">
-                    <div class="bg-[#1e293b] px-5 py-3 flex justify-between items-center border-b border-slate-700">
-                        <div class="flex gap-2">
-                            <div class="w-2.5 h-2.5 rounded-full bg-[#ef4444]"></div>
-                            <div class="w-2.5 h-2.5 rounded-full bg-[#f59e0b]"></div>
-                            <div class="w-2.5 h-2.5 rounded-full bg-[#22c55e]"></div>
-                        </div>
-                        <span class="text-[9px] text-slate-400 font-mono uppercase tracking-widest">server-log --verbose</span>
-                    </div>
-                    <div id="terminal" class="p-6 h-[600px] overflow-y-auto terminal-font text-[12px] text-slate-300 leading-relaxed scrollbar-hide">
-                        <span class="text-slate-500 opacity-50">// Le détail des calculs s'affichera ici...</span>
-                    </div>
+            
+            <div id="resultsArea" class="space-y-4">
+                <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-300 text-slate-400 text-sm">
+                    <p class="mb-2">En attente du lancement...</p>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Cliquez sur le bouton en haut</span>
                 </div>
             </div>
         </div>
@@ -120,42 +94,15 @@
     </div>
 
     <script>
-        // Fonction pour mettre à jour le terminal noir
-        function updateTerminal(logs) {
-            const term = document.getElementById('terminal');
-            term.innerHTML = "";
-            logs.forEach((line, index) => {
-                let color = "text-green-400"; // Couleur par défaut
-                
-                // Coloration syntaxique simple pour la lisibilité
-                if (line.includes('❌')) color = "text-red-400 font-bold";
-                if (line.includes('⚠️')) color = "text-yellow-400";
-                if (line.includes('NOUVEAU') || line.includes('🏆')) color = "text-indigo-300 font-bold";
-                if (line.includes('📖') || line.includes('===')) color = "text-white font-bold mt-4 block border-t border-slate-800 pt-2";
-                if (line.includes('Calcul:')) color = "text-slate-500 italic";
-                if (line.includes('Filtre')) color = "text-blue-400";
-
-                // Ajout avec un léger délai pour effet "flux de données" (optionnel, ici instantané pour la performance)
-                term.innerHTML += `<div class="log-line ${color}">${line}</div>`;
-            });
-            term.scrollTop = term.scrollHeight;
-        }
-
         async function runTest() {
             const btn = document.getElementById('btnRun');
             const btnText = document.getElementById('btnText');
             const resultsArea = document.getElementById('resultsArea');
-            const terminal = document.getElementById('terminal');
             
             // État de chargement
             btn.disabled = true;
             btnText.innerHTML = "CALCUL EN COURS...";
             btn.classList.add('opacity-75');
-            
-            terminal.innerHTML = `
-                <div class='flex items-center gap-2 text-indigo-400 font-mono animate-pulse'>
-                    <span>> Connecting to localhost:3000...</span>
-                </div>`;
             
             resultsArea.innerHTML = `
                 <div class="flex flex-col items-center justify-center p-10 space-y-4">
@@ -174,11 +121,9 @@
 
                 const data = await response.json();
                 
-                // 1. Affichage des Logs (Preuve technique)
-                updateTerminal(data.logs);
+                // Affichage des Cartes uniquement
                 resultsArea.innerHTML = ""; 
 
-                // 2. Affichage des Cartes (Preuve visuelle)
                 data.results.forEach((recipe, index) => {
                     const isN_A = recipe.bestPrice === 'N/A';
                     
@@ -232,16 +177,14 @@
                 console.error(err);
                 // Gestion d'erreur
                 resultsArea.innerHTML = `
-                    <div class="bg-red-50 text-red-800 p-6 rounded-xl border border-red-200 shadow-sm">
-                        <strong class="flex items-center gap-2 mb-2">
+                    <div class="bg-red-50 text-red-800 p-6 rounded-xl border border-red-200 shadow-sm text-center">
+                        <strong class="flex items-center justify-center gap-2 mb-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                             Erreur de connexion
                         </strong>
                         <p class="text-sm opacity-80">Impossible de joindre le serveur de calcul.</p>
-                        <p class="text-xs mt-2 font-mono bg-red-100 p-2 rounded">Vérifiez que "npm run start" ou "ts-node server.ts" est lancé.</p>
+                        <p class="text-xs mt-2 font-mono bg-red-100 p-2 rounded inline-block">Vérifiez que "npm run start" est lancé.</p>
                     </div>`;
-                
-                terminal.innerHTML = `<div class="text-red-500 font-mono p-4">🛑 CONNECTION_REFUSED : Le serveur localhost:3000 ne répond pas.</div>`;
                 
                 btn.disabled = false;
                 btnText.innerHTML = "RÉESSAYER";
